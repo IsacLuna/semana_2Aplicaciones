@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+
+<html>
+
+    <head>
+
+        <title>
+            Mi web star wars.
+        </title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    </head>
+
+    <body style="background-color: black;">
+
+        <img style="display: block; margin: auto;" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Star_Wars_Logo.svg/640px-Star_Wars_Logo.svg.png">
+        <div class="container">
+
+            <div style="text-align: center;">
+
+                <h3 style="color: rgb(251, 255, 0);">Bienvenido a mí web de star wars.</h3>
+                <button class="btn btn-success" onclick="search()" onclick="findStarWarsPeople()">Buscar</button>
+    
+            </div>
+            
+            <div id="results"></div>
+
+            <div style="text-align: right;" id="footerPage">
+                
+                <button style="display: none;" onclick="back()" id="buttonBack" class = "btn btn-warning"> << </button>
+                <button style="display: none;" onclick="next()" id="buttonNext" class = "btn btn-success">>></button>
+
+            </div>
+
+        </div>
+
+    </body>
+
+
+    <script>
+
+        url = "https://swapi.dev/api/people";
+
+        let nextPage = "";
+        let lastPage = "";
+        let currentApiUrl = "";
+
+        function next(){
+
+            currentApiUrl = nextPage;
+            findStarWarsPeople();
+
+        }
+
+        function back(){
+
+            currentApiUrl = lastPage;
+            findStarWarsPeople();
+        }
+
+        function search(){
+
+            currentApiUrl = "https://swapi.dev/api/people";
+            findStarWarsPeople();
+        }
+
+        function findStarWarsPeople(){
+
+            document.getElementById("results").innerHTML = "";
+            let data = undefined;
+            var request = new XMLHttpRequest;
+            request.open('GET', currentApiUrl , true);
+            request.send();
+
+            request.onreadystatechange = function (){
+                //debugger;
+                //Estado  = 4 es ya terminó la función asíncrona y el estado 200 es código de que la respuesta fue satisfactoria.
+                if (this.readyState == 4 && this.status == 200){
+
+                    //document.getElementById("footerPage").style.display = "none";
+                    let resultRawData = this.response; 
+                    let data = JSON.parse(resultRawData);
+                    showApiData(data);
+                    
+
+                }
+
+            }
+
+            function showApiData(data){
+
+                let element = document.getElementById("results");
+                let countingHtml = document.createElement('h3');
+                countingHtml.style.color = "yellow";
+                countingHtml.innerHTML = "Cantidad de personajes encontrados: " + data.count;
+                element.appendChild(countingHtml);
+
+                for( let i = 0; i < data.results.length; i++){
+
+                    let currrentItem = data.results[i];
+                    let personaje = document.createElement('h5');
+                    personaje.style.color = "yellow";
+                    personaje.innerHTML = currrentItem.name;
+                    let htmlStyle = "<hr/ ><strong>" + currrentItem.name + "</strong><br />";
+                    htmlStyle += " Genero: " + currrentItem.gender;
+                    personaje.innerHTML = htmlStyle;
+
+                    document.getElementById('results').appendChild(personaje);
+                        
+                }
+
+                if(data.next != null){
+
+                    document.getElementById("buttonNext").style.display = "inline";
+                    nextPage = data.next; 
+                }
+                else 
+                    document.getElementById("buttonNext").style.display = "none";
+                    
+                
+                if(data.previous != null){
+
+                    document.getElementById("buttonBack").style.display = "inline";
+                    lastPage = data.previous;
+
+                }
+                else
+                    document.getElementById("buttonBack").style.display = "none";
+
+            }
+
+        }
+
+    </script>
+
+</html>
